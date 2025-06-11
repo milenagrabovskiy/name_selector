@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Pick a Name</title>
+  </head>
+  <body style="text-align:center; padding-top:50px; font-family:sans-serif; background-color: #70b5ff;">
+
+    <h1>Who's next? :)</h1>
+
+    <div id="name" style="font-size: 2em; margin: 20px;">Click the button to pick a name</div>
+
+
+
+    <button onclick="pickName()" style="font-size: 2em; padding: 10px 20px; background-color: #f4f5f0; color: black">Choose a name</button>
+
+    <script>
+      function pickName() {
+        fetch('/get-name')
+          .then(res => res.json())
+          .then(data => {
+            document.getElementById('name').textContent = data.name;
+          });
+      }
+    </script>
+
+  </body>
+</html>
