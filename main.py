@@ -23,7 +23,7 @@ def get_name():
         if random_name != last_called:
             break
 
-    session['last_name'] = random_name #session is storing memory. so this way same name wont be picked twice in a row
+    session['last_called'] = random_name #session is storing memory. so this way same name wont be picked twice in a row
     return jsonify({'name': random_name}) #to send data to browser as json
 
 
