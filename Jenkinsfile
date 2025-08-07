@@ -1,6 +1,13 @@
 pipeline {
     agent any
 
+    options {
+        // Wipe out the workspace before starting the pipeline
+        wipeWorkspace()
+        // Timeout in case something hangs
+        timeout(time: 15, unit: 'MINUTES')
+    }
+
     environment {
         IMAGE_NAME = "milenag/my-flask-app"
         CONTAINER_NAME = "flask-app-container"
@@ -16,19 +23,26 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/milenagrabovskiy/name_selector.git'
+                // Always do a clean fresh clone
+                checkout([$class: 'GitSCM',
+                    branches: [[name: 'refs/heads/main']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [[$class: 'WipeWorkspace']],  // wipes workspace before checkout
+                    userRemoteConfigs: [[url: 'https://github.com/milenagrabovskiy/name_selector.git']]
+                ])
             }
         }
 
         stage('Mock Tests') {
             steps {
                 echo "Running regression tests..."
-                // Add your test commands here, e.g. sh 'pytest'
+                // Add test commands here, e.g. sh 'pytest'
             }
         }
 
         stage('Build Docker Image') {
             steps {
+                // This will fail if Jenkins doesn't have docker permissions
                 sh "docker build -t ${IMAGE_NAME}:latest ."
             }
         }
