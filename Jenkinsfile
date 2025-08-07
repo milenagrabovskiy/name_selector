@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    options {
+        wipeWorkspace()
+        timeout(time: 15, unit: 'MINUTES')
+    }
+
     environment {
         IMAGE_NAME = "milenag/my-flask-app"
         CONTAINER_NAME = "flask-app-container"
@@ -8,16 +13,35 @@ pipeline {
     }
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/milenagrabovskiy/name_selector.git'
+                // Manual git checkout without wiping workspace extension
+                checkout([$class: 'GitSCM',
+                    branches: [[name: 'refs/heads/main']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
+                    userRemoteConfigs: [[url: 'https://github.com/milenagrabovskiy/name_selector.git']]
+                ])
+            }
+        }
+
+        stage('Debug Workspace') {
+            steps {
+                sh 'ls -la'
+                sh 'git status || echo "Not a git repo"'
             }
         }
 
         stage('Mock Tests') {
             steps {
                 echo "Running regression tests..."
-                // Add your test commands here, e.g. sh 'pytest'
+                // sh 'pytest' or your test command here
             }
         }
 
