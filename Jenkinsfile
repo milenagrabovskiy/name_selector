@@ -10,14 +10,14 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/milenagrabovskiy/name_selector.git'
+                git branch: 'main', url: 'https://github.com/milenagrabovskiy/name_selector.git'
             }
         }
 
         stage('Mock Tests') {
             steps {
                 echo "Running regression tests..."
-
+                // Add your test commands here, e.g. sh 'pytest'
             }
         }
 
