@@ -2,9 +2,7 @@ pipeline {
     agent any
 
     options {
-        // Wipe out the workspace before starting the pipeline
         wipeWorkspace()
-        // Timeout in case something hangs
         timeout(time: 15, unit: 'MINUTES')
     }
 
@@ -23,26 +21,32 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                // Always do a clean fresh clone
+                // Manual git checkout without wiping workspace extension
                 checkout([$class: 'GitSCM',
                     branches: [[name: 'refs/heads/main']],
                     doGenerateSubmoduleConfigurations: false,
-                    extensions: [[$class: 'WipeWorkspace']],  // wipes workspace before checkout
+                    extensions: [],
                     userRemoteConfigs: [[url: 'https://github.com/milenagrabovskiy/name_selector.git']]
                 ])
+            }
+        }
+
+        stage('Debug Workspace') {
+            steps {
+                sh 'ls -la'
+                sh 'git status || echo "Not a git repo"'
             }
         }
 
         stage('Mock Tests') {
             steps {
                 echo "Running regression tests..."
-                // Add test commands here, e.g. sh 'pytest'
+                // sh 'pytest' or your test command here
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                // This will fail if Jenkins doesn't have docker permissions
                 sh "docker build -t ${IMAGE_NAME}:latest ."
             }
         }
